@@ -358,6 +358,549 @@ pairs(credit[, -c(4,5)], diag.panel = panel.hist())
 # category.
 
 
+########################################
+
+rm(list = ls())
+# Loading required package
+req_pkg <- c("readxl", "officer")
+pkg_avail_status <- req_pkg[!(req_pkg %in% installed.packages())]
+if(length(pkg_avail_status)){
+  install.packages(pkg_avail_status)
+}
+
+
+library(readxl)
+library(officer)
+options(java.parameters = "-Xmx1024m", scipen = 100000)
+default_dir <- getwd()
+working_dir <- ""
+cost_comp_data_loc <- ""
+
+# Activate function in current environment.
+source(paste(working_dir,"COP_Data_Handling_Functions.R", sep = "/"))
+source(paste(working_dir,'Functions_For_ICO_Category.R', sep = "/"))
+source(paste(working_dir,'Quaterly_Graphs_Function.R', sep = "/"))
+source(paste(working_dir,'Origin_Cost_Components_graph_function.R', sep = "/"))
+source(paste(working_dir,'monthly_data_compile_plot_functions.R', sep = "/"))
+source(paste(working_dir,'functions_for_farm_type_bar_chart.R', sep = "/"))
+source(paste(working_dir,'fuctions_for_cop_area_chart.R', sep = "/"))
+
+# Read powerpoint format file as a pptx doc object.
+# doc <- pptx(template = paste(working_dir,"factbook_format.pptx", sep = "/"))
+doc <- read_pptx(path = paste(working_dir,"factbook_format_new.pptx", sep = "/"))
+# Read Data for cost component chart
+origin_cost_comp_file_loc <- paste(cost_comp_data_loc,
+                                   "Origin_Cost_Components.xlsx", sep= "/")
+ICO_cost_component_file_loc <- paste(cost_comp_data_loc,
+                                     "ICO_Cost_Components.xlsx", sep = "/")
+
+# Slide numbers which needs to be updated
+# slide_num_ico <- c(6:25) + 2 # For ICO slide number.
+# slide_num_country <- c(28,29, 34:38, 43:45, 47:48, 53:55, 
+#                        57:58, 63:65, 67:68, 73:75, 77:78, 
+#                        83:85, 87:88, 93:95, 97:98, 103:107, 
+#                        112:114, 116:117, 122:124, 126:127, 
+#                        132:134, 136:137, 142:144, 146:147, 
+#                        152:154, 156:157, 162:164, 166:167, 
+#                        172:176, 181:183) + 2
+
+# slide_num_ico <- c(8:27)
+# slide_num_country <- c(30:33, 36:42, 45:47, 49:52, 55:57,
+#                        59:62, 65:67, 69:72, 75:77, 79:82,
+#                        85:87, 89:92, 95:97, 99:102, 105:111,
+#                        114:116, 118:121, 124:126, 128:131,
+#                        134:136, 138:141, 144:146, 148:151,
+#                        154:156, 158:161, 164:166, 168:171,
+#                        174:180, 183:185)
+
+slide_num_ico <- c(8:27)
+slide_num_country <- c(30:47, 49:57, 59:67, 69:77, 79:87, 
+                       89:97, 99:116, 118:126, 128:136,
+                       138:146, 148:156, 158:166, 168:185)
+
+# create an object of three month file names in ascending order and month_year
+# object in the format ("mmm-yy") should be corresponding to the file order.
+
+# Read three months backed up data for Factbook charts
+message(cat("Chosse back up files (3 months) in the ascending order i.e. old to new file.\n",
+            "This is done in order to maintain the color sequence."))
+
+three_months_file_name <- c(message("Choose 1st excel file:"),file.choose(),
+                            message("Choose 2nd excel file:"),file.choose(),
+                            message("Choose 3rd excel file:"),file.choose())
+# three month name in the format mmm-yy and in the order of file location.
+message(cat("Provide month name in the same order as of file name provide\n",
+            "e.g. 'Jun-18' for June file"))
+# mon_year <- readline("Give 3 months name for three files provided location: ")
+# mon_year <- c("May-18", "Jun-18", "Jul-18")
+mon_year <- c(readline("Month name for 1st file location? "), 
+              readline("Month name for 2nd file location? "), 
+              readline("Month name for 3rd file location? "))
+# Provide month to select latest data.
+message(cat("Select the latest month order as provided above for charts creation\n"))
+mon_to_select <- readline("Which month to select for charts (from 1,2,3)? ")
+mon_to_select <- as.numeric(mon_to_select)
+COP_month <- mon_year[mon_to_select]
+
+# Compile three months backed up data
+all_data <- worksheets_compiled_data(three_months_file_name, mon_year)
+# Get Country name with coffee type 
+country_name_list <- names(all_data)
+# Year for each country according to their on-going crop year
+country_cy_list <- structure(list(Crop_Year = c(2019, 2019, 2019, 2019, 2019,
+                                                2019,2019, 2019, 2019, 2019,
+                                                2019, 2019, 2019, 2019, 2019, 2019)),
+                             class = "data.frame", 
+                             row.names = c("Brazil_Arabica","Brazil_Robusta",
+                                           "China_Arabica", "Colombia_Arabica",
+                                           "Ethiopia_Arabica","Guatemala_Arabica",
+                                           "Honduras_Arabica", "India_Arabica",
+                                           "India_Robusta", "Indonesia_Robusta",
+                                           "Mexico_Arabica", "Peru_Arabica",
+                                           "Thailand_Robusta","Uganda_Robusta",
+                                           "Vietnam_Arabica", "Vietnam_Robusta"))
+# show the default year selected for each country
+message(cat("The default year selected for each country are: "))
+print(country_cy_list)
+year_update_status <- readline("Do you want to change the year? (yes or no): ")
+if(toupper(year_update_status) == "YES"){
+  message("Provide year for country")
+  for(i in 1:nrow(country_cy_list)){
+    display_country <- paste0("Year for ", rownames(country_cy_list)[i], " : ")
+    country_cy_list[i,1] <- readline(display_country)
+  }
+}
+# Reading each country year for crop year.
+year <- as.numeric(country_cy_list[, "Crop_Year"])
+
+# Saving pptx in the local drive.
+if(!(dir.exists(working_dir)))
+  working_dir <- default_dir
+save_file_loc <- readline(paste("Do you want to save the file in the",
+                                default_dir, "?", "[yes or no] "))
+if(toupper(save_file_loc) == "YES"){
+  working_dir <- default_dir
+}
+
+# For ICO type Charts ####
+# **********************************************************************************
+# *******************  Part 1. Categorization by ICO    ****************************
+
+colombian_milds_list = c("China_Arabica", "Colombia_Arabica","Guatemala_Arabica",
+                         "Honduras_Arabica",  "India_Arabica", "Mexico_Arabica",
+                         "Peru_Arabica", "Vietnam_Arabica")
+
+milds_req_columns <- c("Crop Year", "Farmer Size", "State (Province)",
+                       "District", "Total cost (c/lb)", 
+                       "Production (K Bag)", "Date", "Country")
+
+other_milds_list = c("China_Arabica", "Guatemala_Arabica","Honduras_Arabica",
+                     "India_Arabica", "Mexico_Arabica", "Peru_Arabica",
+                     "Vietnam_Arabica")
+
+unwashed_arabica_list <- c("Brazil_Arabica", "Ethiopia_Arabica")
+
+Robusta_list <- c( "Brazil_Robusta", "India_Robusta", "Indonesia_Robusta",
+                   "Thailand_Robusta", "Uganda_Robusta", "Vietnam_Robusta")
+
+robusta_req_columns <- c("Crop Year", "Farmer Size", "State (Province)",
+                         "District", "Total cost (USD/MT)", 
+                         "Production (K Bag)", "Date", "Country")
+
+# Provide the "all_data" compiled above to function "data_compilation_by_ICO" 
+# in "list_type_data" argument.
+Milds_Including_Colombia <- 
+  data_compilation_by_ICO(list_type_data = all_data,
+                          grouping_country_list = colombian_milds_list,
+                          columns_to_select = milds_req_columns)
+Milds_Including_Colombia[, "Date"] <- as.character(Milds_Including_Colombia[,"Date"])
+
+Other_Milds <- data_compilation_by_ICO(list_type_data = all_data,
+                                       grouping_country_list = other_milds_list,
+                                       columns_to_select = milds_req_columns)
+Other_Milds[, "Date"] <- as.character(Other_Milds[, "Date"])
+
+Unwashed_Arabica <- 
+  data_compilation_by_ICO(list_type_data = all_data,
+                          grouping_country_list = unwashed_arabica_list,
+                          columns_to_select = milds_req_columns)
+Unwashed_Arabica[, "Date"] <- as.character(Unwashed_Arabica[,"Date"])
+
+Robusta <- data_compilation_by_ICO(list_type_data = all_data,
+                                   grouping_country_list =Robusta_list,
+                                   columns_to_select = robusta_req_columns)
+Robusta[, "Date"] <- as.character(Robusta[, "Date"])
+
+ICO_data_list <- list(Milds_Including_Colombia, Other_Milds, Unwashed_Arabica, Robusta)
+# Create ICO name as per ICO_data_list
+ICO_category_name<- c("Milds_Including_Colombia", "Other_Milds",
+                      "Unwashed_Arabica", "Robusta")
+names(ICO_data_list) <- ICO_category_name
+
+# Create ICO categorized data for monthly evolution chart (three months).
+ICO_data_for_quaterly_chart <- lapply(seq_along(ICO_data_list), 
+                                      function(x) filter(ICO_data_list[[x]], 
+                                                         Date == COP_month))
+names(ICO_data_for_quaterly_chart) <- ICO_category_name
+cur_cy_for_ICO <- country_cy_list[country_name_list[1],]
+cur_cy_for_ICO <- readline(
+  "Enter current crop year for ICO type charts e.g 2018(18/19) : ")
+cur_cy_for_ICO <- as.numeric(cur_cy_for_ICO)
+nxt_cy_for_ICO <- readline(
+  "Enter next crop year for ICO type charts e.g 2019(19/20) : ")
+nxt_cy_for_ICO <- as.numeric(nxt_cy_for_ICO)
+cur_cy_ICO_data_for_3_months <- lapply(seq_along(ICO_data_list),
+                                       function(x) 
+                                         three_months_data(ICO_data_list[[x]],
+                                                           year = cur_cy_for_ICO))
+nxt_cy_ICO_data_for_3_months <- lapply(seq_along(ICO_data_list),
+                                       function(x) 
+                                         three_months_data(ICO_data_list[[x]],
+                                                           year = nxt_cy_for_ICO))
+
+ICO_cost_component_data <- lapply(seq_along(ICO_category_name), 
+                                  function(x) readxl::read_xlsx(ICO_cost_component_file_loc,
+                                                                ICO_category_name[x])) 
+
+# ************************ Quateraly & Monthly Evolution Charts **********************
+#                     ****************  Cost Components Chart   **************
+# Keep the order of total as per the ICO_data_list created above.
+message("Preparing charts by ICO Categories\n")
+
+tc_unit_name_ICO <- c(rep("Total cost (c/lb)", 3), 
+                      "Total cost (USD/MT)")
+
+j <- 1
+for(i in 1:length(ICO_data_list)){
+  # four quatered charts:
+  # In this section for argument "function_name_to_call" use "FourQuarteredGraphs"
+  quaterly_charts_to_ppt(ppt_doc = doc, year = cur_cy_for_ICO, 
+                         data = ICO_data_for_quaterly_chart[[i]],  
+                         tc_unit_name = tc_unit_name_ICO[i], 
+                         title_name = ICO_category_name[i], 
+                         function_name_to_call = "FourQuarteredGraphs", 
+                         slide_num = slide_num_ico[j])
+  j <- j+1
+  # percentile charts: In this call "percentile_chart" function.
+  quaterly_charts_to_ppt(ppt_doc = doc, year = cur_cy_for_ICO, 
+                         data = ICO_data_for_quaterly_chart[[i]],  
+                         tc_unit_name = tc_unit_name_ICO[i], 
+                         title_name = ICO_category_name[i], 
+                         function_name_to_call = "percentile_chart", 
+                         slide_num = slide_num_ico[j])
+  j <- j+1
+  cost_component_chart_ppt(ppt_doc = doc, 
+                           data = ICO_cost_component_data[[i]],
+                           year = cur_cy_for_ICO, 
+                           tbl_req_on_ch = FALSE,
+                           title_name = ICO_category_name[i], 
+                           slide_num = slide_num_ico[j])
+  j <- j+1
+  # Three months chart 
+  monthly_evolution_chart_ppt(ppt_doc = doc, year = cur_cy_for_ICO, 
+                              data = cur_cy_ICO_data_for_3_months[[i]],  
+                              tc_unit_name = tc_unit_name_ICO[i], 
+                              title_name = ICO_category_name[i], 
+                              slide_num = slide_num_ico[j])
+  j <- j+1
+  monthly_evolution_chart_ppt(ppt_doc = doc, year = nxt_cy_for_ICO, 
+                              data = nxt_cy_ICO_data_for_3_months[[i]],  
+                              tc_unit_name = tc_unit_name_ICO[i], 
+                              title_name = ICO_category_name[i], 
+                              slide_num = slide_num_ico[j])
+  j <- j+1
+}
+
+message("Charts prepared for ICO category\n")
+message("....................................\n")
+message("Creating Individual Country Charts....")
+# ******************************************************************************
+# *******************  Part 2. For Individual Countries ************************
+
+# Data: For Origin cost component chart data####
+origin_cost_data <- lapply(seq_along(country_name_list), 
+                           function(x) readxl::read_xlsx(origin_cost_comp_file_loc,
+                                                         country_name_list[x]))
+# Data: Filtering data for four quatered graphs for individual countries ####
+country_data_for_quaterly_chart <- lapply(seq_along(all_data), 
+                                          function(x) filter(all_data[[x]], Date == COP_month))
+
+for(i in 1:length(country_data_for_quaterly_chart)){
+  country_data_for_quaterly_chart[[i]][, "Date"] <- 
+    as.character(country_data_for_quaterly_chart[[i]][, "Date"])
+}
+
+# to restrict vietnam data to plot y-asis at the level of
+# 2000 USD/MT
+vietnam_rob_pos = grep("Vietnam_Robusta", country_name_list)
+tot_cop_filter_val = 2000
+vietnam_data_actu <- country_data_for_quaterly_chart[[vietnam_rob_pos]]
+vietnam_data <- 
+  vietnam_data_actu[vietnam_data_actu[["Total cost (USD/MT)"]] <= 
+                      as.name(tot_cop_filter_val), ]
+
+country_data_for_quaterly_chart[[vietnam_rob_pos]] <- vietnam_data
+
+# Data: Create Data for monthly evolution chart (three months) country level ####
+country_data_for_3_months <- lapply(seq_along(all_data), 
+                                    function(x) three_months_data(all_data[[x]], 
+                                                                  year = year[x]))
+
+vietnam_data_3_months <- country_data_for_3_months[[vietnam_rob_pos]]
+vietnam_data_3_months <- 
+  vietnam_data_3_months[vietnam_data_3_months[["Total cost (USD/MT)"]] 
+                        <= as.name(tot_cop_filter_val), ]
+country_data_for_3_months[[vietnam_rob_pos]] <- vietnam_data_3_months
+
+# Read total cost column name (local) for all country
+total_cost_unit_local <- lapply(seq_along(all_data), 
+                                function(x) 
+                                  names(all_data[[x]])
+                                [grep("Total cost",
+                                      names(all_data[[x]]),
+                                      ignore.case = TRUE)][1])
+total_cost_unit_local <- unlist(total_cost_unit_local)
+
+# Read total cost column name (ICO) for all country
+total_cost_unit_std <- lapply(seq_along(all_data), 
+                              function(x) 
+                                names(all_data[[x]])
+                              [grep("Total cost",
+                                    names(all_data[[x]]),
+                                    ignore.case = TRUE)][2])
+total_cost_unit_std <- unlist(total_cost_unit_std)
+
+# Read local farm gate price column name for all country
+farm_gate_name_local <- lapply(seq_along(all_data), 
+                               function(x) 
+                                 names(all_data[[x]])
+                               [grep("Farm gate|Farmgate",
+                                     names(all_data[[x]]),
+                                     ignore.case = TRUE)][1])
+farm_gate_name_local <- unlist(farm_gate_name_local)
+
+# Read standard farm gate price column name for all country
+farm_gate_name_std <- lapply(seq_along(all_data), 
+                             function(x) 
+                               names(all_data[[x]])
+                             [grep("Farm gate|Farmgate",
+                                   names(all_data[[x]]),
+                                   ignore.case = TRUE)][2])
+farm_gate_name_std <- unlist(farm_gate_name_std)
+
+# Read local FOB column name for all country
+fob_name_local <- lapply(seq_along(all_data), 
+                         function(x) 
+                           names(all_data[[x]])
+                         [grep("fob",
+                               names(all_data[[x]]),
+                               ignore.case = TRUE)][1])
+fob_name_local <- unlist(fob_name_local)
+# Read standar FOB column name for all country
+fob_name_std <- lapply(seq_along(all_data), 
+                       function(x) 
+                         names(all_data[[x]])
+                       [grep("fob",
+                             names(all_data[[x]]),
+                             ignore.case = TRUE)][2])
+fob_name_std <- unlist(fob_name_std)
+# Read local direct cost column name for all country.
+direct_cst_name_lcl <- lapply(seq_along(all_data),
+                              function(x) 
+                                names(all_data[[x]])
+                              [grep("Direct",
+                                    names(all_data[[x]]))][1])
+direct_cst_name_lcl <- unlist(direct_cst_name_lcl)
+indirect_cst_name_lcl <- lapply(seq_along(all_data),
+                                function(x) 
+                                  names(all_data[[x]])
+                                [grep("Indirect",
+                                      names(all_data[[x]]))][1])
+indirect_cst_name_lcl <- unlist(indirect_cst_name_lcl)
+# Read standard direct cost column name for all country.
+direct_cst_name_std <- lapply(seq_along(all_data),
+                              function(x) 
+                                names(all_data[[x]])
+                              [grep("Direct",
+                                    names(all_data[[x]]))][2])
+direct_cst_name_std <- unlist(direct_cst_name_std)
+indirect_cst_name_std <- lapply(seq_along(all_data),
+                                function(x) 
+                                  names(all_data[[x]])
+                                [grep("Indirect",
+                                      names(all_data[[x]]))][2])
+indirect_cst_name_std <- unlist(indirect_cst_name_std)
+
+# Data : Arrange data for bar chart ####
+# this function creates a variable named "region_farm_type" for x-axis,
+# argument "col_name_for_values" is for y axis and
+# "column_name_for_cols_to_row" is for fill type.
+x  <-   "region_farm_type"
+x_axis  <- "Cummulative_Production" 
+y  <-  "cop_type_value"
+fill_type  <-  "cop_type_name"
+
+data_bar_type_lcl <- lapply(seq_along(all_data), function(x)
+  arrange_data_from_col_to_row(data = all_data[[x]],
+                               year = year[x],
+                               mon_name_to_select = COP_month,
+                               cols_name_for_row = c(fob_name_local[x],
+                                                     indirect_cst_name_lcl[x],
+                                                     direct_cst_name_lcl[x]),
+                               column_name_for_cols_to_row = "cop_type_name",
+                               col_name_for_values = "cop_type_value"))
+
+data_bar_type_std <- lapply(seq_along(all_data), function(x)
+  arrange_data_from_col_to_row(data = all_data[[x]],
+                               year = year[x],
+                               mon_name_to_select = COP_month,
+                               cols_name_for_row = c(fob_name_std[x],
+                                                     indirect_cst_name_std[x],
+                                                     direct_cst_name_std[x]),
+                               column_name_for_cols_to_row = "cop_type_name",
+                               col_name_for_values = "cop_type_value"))
+
+# Calling COPFactbook_pptx function to create & return pptx object named doc
+k = 1
+for(i in 1:length(country_data_for_quaterly_chart)){
+  quaterly_charts_to_ppt(ppt_doc = doc, year = year[i],
+                         data = country_data_for_quaterly_chart[[i]],
+                         tc_unit_name =  total_cost_unit_local[i],
+                         title_name = country_name_list[i],
+                         function_name_to_call = "FourQuarteredGraphs", 
+                         slide_num = slide_num_country[k])
+  k <- k+1
+  quaterly_charts_to_ppt(ppt_doc = doc, year = year[i],
+                         data = country_data_for_quaterly_chart[[i]],
+                         tc_unit_name =  total_cost_unit_std[i],
+                         title_name = country_name_list[i],
+                         function_name_to_call = "FourQuarteredGraphs", 
+                         slide_num = slide_num_country[k])
+  k <- k+1
+  # monthly_evolution_chart_ppt(ppt_doc = doc, year = year[i], 
+  #                             data = country_data_for_3_months[[i]],
+  #                             tc_unit_name = total_cost_unit_local[i],
+  #                             farm_gate_name = farm_gate_name_local[i],
+  #                             title_name = country_name_list[i], 
+  #                             slide_num = slide_num_country[k])
+  # k <- k+1
+  # monthly_evolution_chart_ppt(ppt_doc = doc, year = year[i], 
+  #                             data = country_data_for_3_months[[i]],
+  #                             tc_unit_name = total_cost_unit_std[i],
+  #                             farm_gate_name = farm_gate_name_std[i],
+  #                             title_name = country_name_list[i], 
+  #                             slide_num = slide_num_country[k])
+  
+  cop_type_bar_chart_to_ppt(ppt_doc = doc, data = data_bar_type_lcl[[i]],
+                            year = year[i], x = x, 
+                            y =  y, fill_type = fill_type,
+                            country_name = country_name_list[i], 
+                            slide_num = slide_num_country[k])
+  k <- k+1
+  cop_type_bar_chart_to_ppt(ppt_doc = doc, data = data_bar_type_std[[i]],
+                            year = year[i], x = x, 
+                            y =  y, fill_type = fill_type,
+                            country_name = country_name_list[i], 
+                            slide_num = slide_num_country[k])
+  k <- k +1
+  cop_area_chart_to_ppt(ppt_doc = doc, data = data_bar_type_lcl[[i]],
+                        year = year[i], 
+                        x_axis = x_axis, y = y, 
+                        fill_type = fill_type, 
+                        fgp_name = farm_gate_name_local[i],
+                        fob_name = fob_name_local[i],
+                        country_name = country_name_list[i],
+                        slide_num = slide_num_country[k])
+  k <- k +1
+  cop_area_chart_to_ppt(ppt_doc = doc, data = data_bar_type_std[[i]],
+                        year = year[i], 
+                        x_axis = x_axis, y = y, 
+                        fill_type = fill_type, 
+                        fgp_name = farm_gate_name_std[i],
+                        fob_name = fob_name_std[i],
+                        country_name = country_name_list[i],
+                        slide_num = slide_num_country[k])
+  k <- k +1
+  monthly_evolution_chart_ppt(ppt_doc = doc, year = year[i],
+                              data = country_data_for_3_months[[i]],
+                              tc_unit_name = total_cost_unit_local[i],
+                              fgp_name = farm_gate_name_local[i],
+                              fob_name = fob_name_local[i],
+                              title_name = country_name_list[i],
+                              slide_num = slide_num_country[k])
+  k <- k+1
+  monthly_evolution_chart_ppt(ppt_doc = doc, year = year[i],
+                              data = country_data_for_3_months[[i]],
+                              tc_unit_name = total_cost_unit_std[i],
+                              fgp_name = farm_gate_name_std[i],
+                              fob_name = fob_name_std[i],
+                              title_name = country_name_list[i],
+                              slide_num = slide_num_country[k])
+  
+  k <- k+1
+  cost_component_chart_ppt(ppt_doc = doc, 
+                           data = origin_cost_data[[i]],
+                           year = year[i], 
+                           tbl_req_on_ch = TRUE,
+                           title_name = country_name_list[i], 
+                           slide_num = slide_num_country[k])
+  k <- k+1
+}
+
+# doc1 <- doc
+slide_num_for_note <- c(177,178,183,184)
+three_yrs = c(year[16]-1, year[16], year[16]+1)
+three_cy = sapply(seq_along(three_yrs), function(x)
+  paste(three_yrs[x], substr(three_yrs[x]+1, 3,4), sep = "-"))
+
+
+note_realted_data <- vietnam_data %>%
+  filter(`Crop Year` %in% three_cy) %>%
+  filter(Rank != "NA") %>%
+  group_by(`Crop Year`)%>%
+  summarise(prod =  sum(`Production (K Bag)`, na.rm = TRUE))
+tot_prod_tbl <- vietnam_data_actu %>%
+  filter(`Crop Year` %in% three_cy) %>%
+  filter(Rank != "NA") %>%
+  group_by(`Crop Year`)%>%
+  summarise(prod =  sum(`Production (K Bag)`, na.rm = TRUE))
+
+note_realted_data[["prod_diff"]] <- 
+  tot_prod_tbl[["prod"]]- note_realted_data[["prod"]]
+note_realted_data[["prod_diff"]] <- round(note_realted_data[["prod_diff"]],0)
+main_note <- "data considers production where Total COP<="
+note <- paste(main_note, tot_cop_filter_val, "USD/MT")
+note1 <- paste(note, " and left out production are:")
+note2 <- paste(note_realted_data[[1]], note_realted_data[[3]], sep = "=", collapse = ", ")
+final_note <- paste(note1, note2, sep = " ")
+note3 <- paste(note_realted_data[[1]][2],
+               note_realted_data[[3]][2],
+               sep = " : ")
+final_note1 <- paste(note1, note3, sep = " ")
+
+for (i in 1:2) {
+  doc <- ph_with_text(on_slide(doc, slide_num_for_note[i]),
+                      str = final_note,
+                      type = "body", 
+                      index = 3)
+}
+
+for (i in 3:4) {
+  doc <- ph_with_text(on_slide(doc, slide_num_for_note[i]),
+                      str = final_note1,
+                      type = "body",
+                      index = 3)
+}
+
+message("Charts are prepared and being saved...")
+# Saving pptx in the local drive.
+factbook_month <- format(Sys.Date()-30, "%Y%m")
+factbook_file_name <- paste(factbook_month, "COPFactbook.pptx", sep = "_")
+print(doc, paste(working_dir, factbook_file_name, sep = "/"))
+
+# remove all the objects created
+rm(list = ls())
+
 
 
 
