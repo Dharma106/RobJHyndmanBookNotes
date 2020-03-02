@@ -1,0 +1,37 @@
+Anderson-Darling 
+Measures the area between the fitted line (based on chosen distribution) and the nonparametric step function (based on the plot points). The statistic is a squared distance that is weighted more heavily in the tails of the distribution. Smaller AndersonDarling values indicates that the distribution fits the data better.
+The AndersonDarling normality test is defined as: 
+H0:  The data follow a normal distribution.  
+Ha:  The data do not follow a normal distribution.  
+Test Statistic:  The AndersonDarling test statistic is defined as 
+A2 =  N  (1 / N)  (2i  1) ( lnF(Yi)+ ln( 1  F(YN + 1  i) ))
+where: 
+F is the cumulative distribution function of the normal distribution
+Yi are the ordered observations. 
+
+Pvalue 
+Another quantitative measure for reporting the result of the AndersonDarling normality test is the p-value. A small p-value is an indication that the null hypothesis is false. 
+If you know A2 you can calculate the pvalue.
+Let:
+A' 2 = A2 
+ 	(1 +
+ 	0.75	+	2.25	)
+ 
+		N		N2	
+Depending on A' 2 , you will calculate p with the following equations:
+If 13 > A' 2 > 0.600   	p = exp(1.2937  5.709  A' 2 + 0.0186(A' 2)2 ) 
+If 0.600 > A' 2 > 0.340   	p = exp(0.9177  4.279  A' 2  1.38(A' 2)2 ) 
+If 0.340 > A' 2 > 0.200   	p = 1  exp(-8.318  42.796  A' 2  59.938(A' 2)2 ) 
+If A' 2 < 0.200	p = 1  exp(-13.436  101.14  A' 2  223.73(A' 2)2 
+
+P-value 
+Another quantitative measure for reporting the result of the Anderson-Darling normality test is the p-value. A small p-value is an indication that the null hypothesis is false. 
+If you know A2 you can calculate the p-value.
+Let:
+A' 2 = A2 *	(1 +	0.75	+	2.25	)
+		N		N2	
+Depending on A' 2 , you will calculate p with the following equations:
+If 13 > A' 2 > 0.600 	p = exp(1.2937 - 5.709 * A' 2 + 0.0186(A' 2)2 ) 
+If 0.600 > A' 2 > 0.340 	p = exp(0.9177 - 4.279 * A' 2 - 1.38(A' 2)2 ) 
+If 0.340 > A' 2 > 0.200 	p = 1 - exp(-8.318 + 42.796 * A' 2 - 59.938(A' 2)2 ) 
+If A' 2 < 0.200	p = 1 - exp(-13.436 + 101.14 * A' 2 - 223.73(A' 2)2 ) 
