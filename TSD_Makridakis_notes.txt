@@ -1,0 +1,34 @@
+Exponential Smoothing Method
+Weights decaying exponentially as the observations get older
+the weight is controlled by the smoothing parameter α where 0 <= α <= 1. The rate at which the weights decrease is controlled by the parameter α.
+For any α between 0 and 1, the weights attached to the observations decrease exponentially as we go back in time. If α is small (i.e. close to 0), more weight is given to observations from the distant past on the other hand if α is large (i.e. close to 1) more weight is given to more recent observations. At the extreme case where α = 1, forecasts are equal to naïve forecast which is nothing but the forecast is equal to recent observation.
+In regression model the coefficients is obtained by minimizing the sum of squared errors (SSE). Similarly, the unknown parameters and the initial value for any exponential smoothing method can be estimated by minimizing SSE. The errors are specified as et = yt – yt| t-1 for t = 1, 2, …, T. So SSE is  ∑_(t= 1)^T▒〖e_t〗^2 
+
+Local Linear Smoothing
+Idea of moving averages can be extended to moving lines. The idea behind this is to fit a straight line through these points and estimate the trend cycle. A trend line is represented as Tt = a + bt. The parameters a and b represent slope and intercept respectively. The value of a and b can be determined by minimizing the sum of squared errors where errors are the differences between the data values of time series and corresponding trend line values. So a and b are values that minimize the sum of squares ∑_(t=1)^n▒〖(Y_t 〗- a-bt)^2. This straight line trend is sometimes appropriate but many at times it requires curved trend. Local Regression is a way of fitting a much more flexible trend cycle curve to data. In this method, instead of fitting a straight line to the entire data, it fit a series of straight lines to sections of data. In this method, a & b are chosen to minimize weighted sum of squares at time t i.e.¬
+∑_(j= -m)^m▒〖a_j (y_(t+j)-a - b(t+j))〗^2 
+
+So we have different value of a and b for every value of t.
+
+LOESS: -
+Loess is an implication of Local linear smoothing but with some protection against extreme observations or outliers. In this method, an initial local regression is calculated then an irregular component i.e. (E_t ) ̂= Y_t- (T_t ) ̂. This is differences between each observation Y¬t and fitted curve (T_t ) ̂. Again local regression is calculated but this time the weights aj are adjusted so that the observation with higher errors receive smaller weights than they did for the first time estimate of trend cycle curve. A new irregular component is then found by subtracting the new estimates of Tt from the data. This procedure continues with each iteration down weighting the observations where there are large error values till (T_t ) ̂ gets stabilize.
+
+Variables Selection Method
+
+Stepwise Regression: - This is a method which can be used to help sort out the relevant variables from a set of candidate explanatory variables when the number of explanatory variables are too large to allow all the possible regression models to be computed.
+
+There are three approaches considered in stepwise regression model.
+	Stepwise forward regression
+	Stepwise backward regression
+	Stepwise forward-with-a-backward-look regression
+
+Stepwise forward regression: In this method, from all the potential explanatory variables, firstly one variable which has highest correlation with Y is regressed with each other. Next, consider residuals from this regression as a new set of Y values and regress with the remaining explanatory variables by picking one which has high correlation with these residuals. This procedure is continued until there are no more explanatory variable which has a significant relationship with the last set of residuals.
+
+Stepwise Backward regression: - In this method, one starts with the regression which includes all the explanatory variables assuming this as possible. Next, we remove that variable which is least significant in the equation (as measured by t-value). Then, with this variable out, new regression is modelled and again we look for least significant explanatory variable and remove that from the equation. This procedure continues till we find the equation which has all the possible significant variables. 
+
+Neither the stepwise forward nor the stepwise backward method is guaranteed to produce the optimal pair of explanatory variables.
+
+
+Multicollinearity: 
+
+	In case of time series data, it is not only the seasonal indices which cause multicollinearity problems. In many financial analyses, a large number of financial ratios and indices are used, and many of them depend on one another in various ways. Therefore, as an analyst one should be depend more and more on large data bases with literally thousands of potential variables to choose from.
