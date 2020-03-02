@@ -1,0 +1,118 @@
+Regression Analysis
+Null Hypothesis
+H0: There is no relationship between X and Y
+
+Alternate Hypothesis
+Hα: There is some relationship between X and Y
+
+Mathematically the above hypothesis corresponds to testing
+	H0:	β1 = 0 versus Hα: β1 ≠ 0
+
+In regression analysis t-statistic given as t=  ((β_1 ) ̂-0)/(SE((β_1 ) ̂)) measures the number of standard deviations that (β_1 ) ̂ is away from 0.
+
+If there is no relationship between X & Y then we can expect that t=  ((β_1 ) ̂-0)/(SE((β_1 ) ̂)) will have a t-distribution with (n-2) degrees of freedom.
+
+One can easily compute the probability of observing any value equal to |t| or larger, assuming β_1=0. This probability is called as p-value.
+
+“P-value” is interpreted as follows:
+
+	A small p-value indicates that the it is unlikely to observe such a substantial association between the predictor and response due to chance, in the absence of any real association between the predictor and response.
+
+	Hence if we encounter a small p-value, we can infer that there is an association between the predictor and response. Therefore, we reject the Null hypothesis, meaning there exist relationship between X & Y if the p-value is small. Typical p-value cutoffs for rejecting Null hypothesis is 5 or 1 %. 
+
+Assessing the Accuracy of the Model
+Once the Null hypothesis is rejected in favor of the alternate hypothesis, one needs to quantify the extent to which the model fits the data. 
+	In linear regression the quality of the fit is assessed using two related quantities 1) Residual Standard Error (RSE) and 2) R2.
+RSE can be described as the average amount that the response will deviate from the true regression line. It is computed as
+	RSE= √(RSS/(n-2)   )= √(1/(n-2)  ∑_(i=1)^n▒〖〖(y_i- (y_i)) ̂〗^2  〗)  
+	RSE is considered as the measure of lack of fit of the model.
+Therefore, if RSE is small value (which means (〖 y〗_i  ) ̂≈ yi for i = 1,…,n)  then one can conclude that the model fits the data very well. On the other hand, if (〖 y〗_i  ) ̂ is very far from yi for one or more observations, then the RSE may be quite large, indicating model doesn’t fit the data well.
+	RSE provides an absolute measure of lack of fit of the model.
+
+R2 statistics provides an alternative measure of fit. It takes the form of a proportion of variance explained by the model. So it lies between 0 & 1 and is independent of the scale of Y.
+	R2 is calculate using formula,
+		R2 = (TSS-RSS)/TSS = 1 - RSS/TSS
+Where TSS = ∑_(i=1)^n▒〖(y_i 〗-y ̅)^2 is the total sum of square, and RSS is defined as Residual sum of Square. 
+
+TSS measures the total variance in response Y, and can be thought of as the amount of variability inherent in the response before the regression is performed.
+
+RSS measures the amount of variability that is left unexplained after performing the regression. So one can say that TSS – RSS measures the amount of variability explained (or removed) by the regression.  
+
+R2 measures the proportion of variability in Y that can be explained using X.
+R2 statistic is a measure to linear relationship between predictor and response variable. If we recall correlation, defined as  
+ Cor(X,Y)=  (∑_(i=1)^n▒〖(x_i- x ̅)〗  (y_i-y ̅))/√(∑_(i=1)^n▒〖〖(x_i- x ̅)〗^2  〖(y_i- y ̅)〗^2 〗)  is also a measure of linear relationship between X & Y. So one can say that instead of R2, r = Cor(X,Y) can be used in order to assess the fit of the linear model. In fact, for the simple linear regression model R2 = r2.
+
+Correlation quantifies the association between a single pair of variables rather than between a larger number of variables.
+
+Multiple Linear Regression
+
+The multiple linear regression for p distinct predictors takes the form 
+ 	Y = β0 + β1X1 + β2X2 + ・ ・ ・ + βpXp + €   
+Where Xj represents the jth predictor and βj quantifies the association between the variable and the response. 
+
+βj is interpreted as the average effect on Y of one unit increase in Xj, holding all other predictors fixed.
+
+As the regression coefficients β0, β1, . . ., βp are unknown so one needs to estimate the coefficients which can be done using the same least square approach used for simple linear regression. So with given estimates β ̂0, β ̂1, . . ., β ̂p, we can make predictions using the formula
+y ̂ = β ̂0 + β ̂1x1 + β ̂2x2 + ・ ・ ・ + β ̂pxp
+
+Coefficients β0, β1, . . ., βp are chosen in such a way that it minimizes the sum of squared residuals.
+	RSS= ∑_(i=1)^n▒〖(y_i 〗-(y_i ) ̂)^2
+	         = ∑_(i=1)^n▒〖(y_i 〗-(β_0 ) ̂- (β_1 ) ̂x_i1- (β_2 ) ̂x_i2- ・ ・ ・- (β_p ) ̂x_ip )^2	
+
+
+
+
+Standard Linear Regression model provides interpretable results and works quite well on many real world problems but it makes several highly restrictive assumptions that are often violated in practice. Two most important assumptions state that the relationship between predictors and response are additive and linear. 
+	The additive assumptions mean that the effect of change in predictor Xj on response Y is independent of the values of the other predictors.
+	The linear relationship states the changes in the response Y due to one-unit change in Xj is constant, regardless of the value of Xj. 
+
+Approach used to accommodate non-linear relationship in linear model is known as Polynomial Regression. The name “polynomial” comes because we include polynomial functions of predictors in the regression model.
+
+While fitting Linear Regression Model to a particular set of data, many problems occur, out of which common ones are as follows.
+	Non-linearity of response-predictor relationship.
+	Correlation of error terms.
+	Non-constant variance of error terms.
+	Outliers
+	High-leverage points.
+	Collinearity
+
+Non-Linearity of Data: -
+	Linear relationship assumes that there is a straight line relationship between the predictors and response. If, this relationship is far away from linear, then the conclusion made from the fit is questionable. The graphical way to check this non-linearity is called as Residual Plots.
+Residual Plot: - For given linear regression model one can plot the residual (i.e. ei = y_i-(y_i ) ̂ i.e. observed response minus predicted response) versus predictor xi. Ideally, the residual plot should show no pattern, basically it should be randomly scattered. In case of multiple regression model, since there are multiple predictors, one should plot the residuals versus the predicted (or fitted) values (y_i ) ̂.
+		If residual plot indicates existence of non-linear associations in the data, then a simple approach is to use non-linear transformations of the predictors such as log X, √X, and X^2 in the regression model.
+Correlation of Error Terms: -
+		An important assumption in the linear regression model is that error terms, €1, €2, €3, ..., €n are uncorrelated. To understand this, say for an instance, error terms are uncorrelated then the fact that €i is positive provides little or no information about the sign the €i+1. On the other hand, if it is correlated then one can determine the sign depending on the prior sign of errors. Therefore, If the errors are uncorrelated, then there should be no recognizable pattern. The standard errors calculated for the estimated regression coefficients or the fitted values are based on the assumption of uncorrelated error terms. 
+		If there is presence of correlation among the error terms, the estimated standard errors will tend to underestimate the true standard errors which will result in narrower confidence and prediction intervals. In addition, the p-value associated with the model will be lower than they should be, this would cause one to wrongly conclude that a parameter is statistically significant. So in one word if error terms are correlated, we may have unreliable sense of confidence in the model.
+		Correlation in error terms generally arise in case of Time Series data. 
+
+Non-Constant Variance of error terms: -
+		The other important assumption in regression model is that the error terms have the constant variance, Var(€i) = σ^2. The standard error, confidence interval and hypothesis test associated with the linear model rely upon this assumption. One can identify the non-constant variances in the errors, or heteroscedasticity, form the presence of a Funnel Shape in residual plot. When faced with this problem one possible solution is to use transformation on the response Y using concave function such as log Y or √Y. This transformation results in the greater amount of shrinkage of the larger responses, leading to reduction in heteroscedasticity.
+
+Outlier: - 
+		Outlier is a point for which the yi is far from the value predicted by the model. Sometimes outlier may not have much effect on the least square fit but it can cause other problems such as high residual standard error (RSE). Since the RSE is used to compute all confidence intervals and p-values, so dramatic increase in RSE due to few outliers can have implications for the interpretation of the fit. Residual Plots, can be used to identify the outliers. Residual Values far away from the rest may be consider as an outlier. But how far is far? So instead of plotting the residuals, we can plot the studentized residuals, computed by dividing each residual ei by its estimated standard error. Therefore, the observations whose studentized residuals are greater than 3 in the absolute terms are possible outliers. 	
+
+High Leverage Point: -
+		Observation with high leverage are unusual value for xi. This is in contrast to outliers which is defined as unusual response yi for given predictor xi. High leverage observations tend to have a sizable impact on the estimated regression line. If the fitted line (least square line) is heavily affected by just a couple of observations, then it is a cause of concern as it can invalidate the fit. Therefore, high leverage observations need to be identified. In case of simple linear regression high leverage observations are easy to be identify, since one can look for observations for which the predictor value is outside of normal range of the observations. In case of multiple linear regression with many predictors it is not possible as there is chance that observations may lie well within the range of individual predictor values but that is unusual in terms of full set of predictors. 
+		In order to quantify the observation’s leverage, we need to compute leverage statistic. High value of leverage statistic is an indication. For simple linear regression, leverage statistic is given as 
+
+h_i=  1/n+  〖(x_i- x ̅)〗^2/(∑_(j=1)^n▒〖(x_j-x ̅)〗^2 ) . For the equation it is clear that hi increase as the distance of xi from x ̅ widens. The hi value always lie between 1/n and 1. The average leverage for all observations is always equal to (p+1)/n. So if a given observation has a leverage statistic greater than (p+1)/n then we may suspect the corresponding point has high leverage.
+
+
+Collinearity: -
+		Collinearity refers to the situation in which two or more predictor variables are closely related to one another. Collinearity reduces the accuracy of estimates of regression coefficients, it causes the standard error for β ̂j to grow. We know that t-statistic for each predictor is calculated by dividing the β ̂j by its standard error. So, collinearity results in reduction in t-statistic. As a result, in presence of collinearity we may fail to reject H0: βj = 0. This means that the power of the hypothesis test – the probability of correctly detecting the non-zero coefficient is reduced by collinearity.
+		A simple way to detect the collinearity is by seeing the correlation matrix of predictors. Large absolute values in the matrix table indicates a pair of highly correlated variables and therefore a collinearity problem in the data. Sometimes not all collinearity can be detected by inspection of correlation matrix. It is possible for collinearity to exist between three or more variables even if no pair of variables has a particularly high correlation. This type of problem is referred as multicollinearity. A better way to assess the existence of multicollinearity is to compute variance inflation factor (VIF). The VIF is the ratio of variance of (β_j ) ̂ when fitting the full model divided by the variance of (β_j ) ̂ if fit on its own. The smallest possible value for VIF is 1 indicating complete absence of collinearity. So as a rule of thumb VIF value that exceeds 5 or 10 (more conservative value) indicates a problem of collinearity. The VIF for each variable is calculated as:
+
+VIF(β ̂_j )=  1/(1-〖R^2〗_(X_j  | X_(-j) ) )  where 〖R^2〗_(X_j  | X_(-j) ) is the R2 from  a regression of Xj onto all other predictors. If 〖R^2〗_(X_j  | X_(-j) ) is close to 1, then there is presence of collinearity and so VIF will be large.
+		To tackle the problem of collinearity one can drop the problematic variables from the regression. The reason for this is that collinearity in variables implies that the information that the one variable provides about the response is redundant in the presence of the other variables. The other way to tackle this is to combine the collinear variables into a single predictor.
+
+NOTE: - 
+	Prediction Intervals will always be wider than the confidence interval because they account for the uncertainty associated with €, the irreducible error. When we are focused on estimating the individual response, Y = f(x) + € we use prediction interval and for average response f(x) we use confidence interval.
+	The standard linear regression model assumes an additive relationship between the predictors and response. An additive model is easy to interpret because effect of each predictor on the response is unrelated to values of the other predictors. 
+	In order to accommodate non-additive relationships one can include interaction term in the regression model.
+	Linear Regression is an example of Parametric approach because it assumes a linear functional form for f(x).
+
+Non-parametric Methods
+		Non-parametric methods do not explicitly assume a parametric form for f(x). One of the simplest and widely used non-parametric method is K-nearest neighbors regression (KNN regression). In this method, for a given positive integer K and a test observation x0, the KNN classifier first identifies the k points in the training data which are closest to x0, represented by N¬0. It then, estimates the conditional probability for class j as the fraction of points in N0 whose response values equal j:
+
+Pr⁡(Y=j ┤| X=xo)=  1/k  ∑_(i ∈ N_0)▒〖I(y_i=j)〗, finally KNN applies the Bayes rule and classifies the test observations x0 to class with the largest probability.
+		
